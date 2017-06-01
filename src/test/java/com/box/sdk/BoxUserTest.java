@@ -1,10 +1,14 @@
 package com.box.sdk;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -1014,5 +1018,49 @@ public class BoxUserTest {
         assertEquals(updatedName, userInfo.getName());
 
         user.delete(false, false);
+    }
+
+    @Test
+    @Category(IntegrationTest.class)
+    public void testExternalAppUserID() throws IOException {
+
+        String fileContent = readFile("/Users/kshanmugasundaram/work/google-video/private_key.pem");
+        System.out.println("PrivateKey: " + fileContent);
+
+        JWTEncryptionPreferences pref = new JWTEncryptionPreferences();
+        pref.setPublicKeyID("dmu2xdpc");
+        pref.setEncryptionAlgorithm(EncryptionAlgorithm.RSA_SHA_256);
+        pref.setPrivateKey(fileContent);
+        pref.setPrivateKeyPassword("nama");
+
+        BoxConfig config = new BoxConfig("rk8abnyftokz80c054ti4g5iu05duzb8", "CLjEVm9xRV9XutsPfn086BiBFJQIsxc4",
+                "9340315", pref);
+        BoxDeveloperEditionAPIConnection api = BoxDeveloperEditionAPIConnection.getAppEnterpriseConnection(config);
+        System.out.println("Access Token: " + api.getAccessToken());
+
+        final String externalUserID = "karthik_external_id_01";
+        final String name = "karthik01";
+
+        CreateUserParams params = new CreateUserParams();
+        params.setIsPlatformAccessOnly(true);
+        params.setExternalAppUserID(externalUserID);
+        BoxUser.Info user1 = BoxUser.createAppUser(api, name, params);
+        System.out.println("Id: " + user1.getID());
+        System.out.println("ExternalAppUserID: " + user1.getExternalAppUserID());
+
+        BoxUser.Info user = BoxUser.getAppUserByExternalID(api, externalUserID);
+        System.out.println("Id: " + user.getID());
+        System.out.println("Name: " + user.getName());
+        System.out.println("ExternalAppUserID: " + user.getExternalAppUserID());
+        System.out.println("Platform enabled: " + user.getIsPlatformAccessOnly());
+
+    }
+
+    private String readFile(String path) throws IOException {
+        Scanner scanner = new Scanner( new File(path), "UTF-8" );
+        String text = scanner.useDelimiter("\\A").next();
+        scanner.close();
+
+        return text;
     }
 }

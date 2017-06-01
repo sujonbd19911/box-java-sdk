@@ -9,6 +9,7 @@ import java.util.List;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
+import org.jose4j.json.internal.json_simple.JSONArray;
 
 /**
  * Represents a Box user account.
@@ -116,6 +117,7 @@ public class BoxUser extends BoxCollaborator {
             requestJSON.add("is_exempt_from_device_limits", params.getIsExemptFromDeviceLimits());
             requestJSON.add("is_exempt_from_login_verification", params.getIsExemptFromLoginVerification());
             requestJSON.add("is_platform_access_only", params.getIsPlatformAccessOnly());
+            requestJSON.add("external_app_user_id", params.getExternalAppUserID());
         }
 
         URL url = USERS_URL_TEMPLATE.build(api.getBaseURL());
@@ -125,7 +127,12 @@ public class BoxUser extends BoxCollaborator {
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
 
         BoxUser createdUser = new BoxUser(api, responseJSON.get("id").asString());
-        return createdUser.new Info(responseJSON);
+        BoxUser.Info userInfo = createdUser.new Info(responseJSON);
+        if (params.getExternalAppUserID() != null) {
+            userInfo.setExternalAppUserID(params.getExternalAppUserID());
+        }
+
+        return userInfo;
     }
 
     /**
@@ -139,6 +146,25 @@ public class BoxUser extends BoxCollaborator {
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject jsonObject = JsonObject.readFrom(response.getJSON());
         return new BoxUser(api, jsonObject.get("id").asString());
+    }
+
+    public static BoxUser.Info getAppUserByExternalID(BoxAPIConnection api, String externaID) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        builder.appendParam("external_app_user_id", externaID);
+        URL url = USERS_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), builder.toString());
+
+        BoxAPIRequest request = new BoxAPIRequest(api, url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject jsonObject = JsonObject.readFrom(response.getJSON());
+
+        JsonArray array = (JsonArray) jsonObject.get("entries");
+        JsonObject object = (JsonObject) array.get(0);
+        BoxUser boxUser = new BoxUser(api, object.get("id").asString());
+
+        BoxUser.Info userInfo = boxUser.new Info(object);
+        userInfo.setExternalAppUserID(externaID);
+
+        return userInfo;
     }
 
     /**
@@ -508,6 +534,7 @@ public class BoxUser extends BoxCollaborator {
         private BoxEnterprise enterprise;
         private List<String> myTags;
         private String hostname;
+        private String externalAppUserID;
 
         /**
          * Constructs an empty Info object.
@@ -837,6 +864,15 @@ public class BoxUser extends BoxCollaborator {
             return this.hostname;
         }
 
+        public String getExternalAppUserID() {
+            return this.externalAppUserID;
+        }
+
+        public void setExternalAppUserID(String externalAppUserID) {
+            this.externalAppUserID = externalAppUserID;
+            this.addPendingChange("external_app_user_id", externalAppUserID);
+        }
+
         @Override
         protected void parseJSONMember(JsonObject.Member member) {
             super.parseJSONMember(member);
@@ -892,6 +928,8 @@ public class BoxUser extends BoxCollaborator {
                 this.myTags = this.parseMyTags(value.asArray());
             } else if (memberName.equals("hostname")) {
                 this.hostname = value.asString();
+            } else if (memberName.equals("external_app_user_id")) {
+                this.externalAppUserID = value.asString();
             }
         }
 
