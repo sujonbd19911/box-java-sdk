@@ -28,7 +28,7 @@ public class BoxSearch {
     /**
      * Searches all descendant folders using a given query and query parameters.
      * @param  offset is the starting position.
-     * @param  limit the number of search results CANNONT Exceed 1000.
+     * @param  limit the number of search results CANNONT Exceed 200.
      * @param  bsp containing query and advanced search capabilities.
      * @return a PartialCollection containing the search results.
      */
