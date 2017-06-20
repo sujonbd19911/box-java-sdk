@@ -336,12 +336,12 @@ public class BoxAPIConnectionTest {
 
         List<String> scopes = new ArrayList<String>();
         scopes.add("DummyScope");
-        String resource = "";
+        String resource = null;
 
         when(api.getTokenURL()).thenReturn("https://api.box.com/oauth2/token");
-        when(api.getLowerScopedToken(scopes, null)).thenCallRealMethod();
+        when(api.getLowerScopedToken(scopes, resource)).thenCallRealMethod();
         try {
-            api.getLowerScopedToken(scopes, null);
+            api.getLowerScopedToken(scopes, resource);
         } catch (RuntimeException e) {
             //Ignore it
         }

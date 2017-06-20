@@ -631,22 +631,24 @@ public class BoxAPIConnection {
             }
         }
 
-        BoxAPIRequest request = new BoxAPIRequest(this, url, "POST");
-        request.shouldAuthenticate(false);
-
+        String urlParameters = null;
         if (resource != null) {
-            String urlParameters = String.format("grant_type=urn:ietf:params:oauth:grant-type:token-exchange"
+            //this.getAccessToken() ensures we have a valid access token
+            urlParameters = String.format("grant_type=urn:ietf:params:oauth:grant-type:token-exchange"
                     + "&subject_token_type=urn:ietf:params:oauth:token-type:access_token&subject_token=%s"
                     + "&scope=%s&resource=%s",
                 this.getAccessToken(), spaceSeparatedScopes, resource);
-            request.setBody(urlParameters);
         } else {
-            String urlParameters = String.format("grant_type=urn:ietf:params:oauth:grant-type:token-exchange"
+            //this.getAccessToken() ensures we have a valid access token
+            urlParameters = String.format("grant_type=urn:ietf:params:oauth:grant-type:token-exchange"
                     + "&subject_token_type=urn:ietf:params:oauth:token-type:access_token&subject_token=%s"
                     + "&scope=%s",
                 this.getAccessToken(), spaceSeparatedScopes);
-            request.setBody(urlParameters);
         }
+
+        BoxAPIRequest request = new BoxAPIRequest(this, url, "POST");
+        request.shouldAuthenticate(false);
+        request.setBody(urlParameters);
 
         String json;
         try {
