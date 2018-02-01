@@ -171,4 +171,8 @@ final class TestConfig {
 
         return configProperties;
     }
+
+    private static void storeTestFlag() {
+
+    }
 }
