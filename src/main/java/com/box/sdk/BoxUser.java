@@ -115,7 +115,6 @@ public class BoxUser extends BoxCollaborator {
     public static BoxUser.Info createEnterpriseUser(BoxAPIConnection api, String login, String name,
         CreateUserParams params) {
 
-        final long defaultAppUserStorage = 1073741824;
         JsonObject requestJSON = new JsonObject();
         requestJSON.add("login", login);
         requestJSON.add("name", name);
@@ -129,8 +128,8 @@ public class BoxUser extends BoxCollaborator {
                 requestJSON.add("status", params.getStatus().toJSONValue());
             }
 
-            if(params.getSpaceAmount() == 0L) {
-                requestJSON.add("space_amount", defaultAppUserStorage);
+            if(params.getSpaceAmount() != 0L) {
+                requestJSON.add("space_amount", params.getSpaceAmount());
             }
 
             requestJSON.add("language", params.getLanguage());
@@ -138,7 +137,6 @@ public class BoxUser extends BoxCollaborator {
             requestJSON.add("job_title", params.getJobTitle());
             requestJSON.add("phone", params.getPhone());
             requestJSON.add("address", params.getAddress());
-            requestJSON.add("space_amount", params.getSpaceAmount());
             requestJSON.add("can_see_managed_users", params.getCanSeeManagedUsers());
             requestJSON.add("timezone", params.getTimezone());
             requestJSON.add("is_exempt_from_device_limits", params.getIsExemptFromDeviceLimits());
