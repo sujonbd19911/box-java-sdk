@@ -115,6 +115,7 @@ public class BoxUser extends BoxCollaborator {
     public static BoxUser.Info createEnterpriseUser(BoxAPIConnection api, String login, String name,
         CreateUserParams params) {
 
+        final long defaultAppUserStorage = 1073741824;
         JsonObject requestJSON = new JsonObject();
         requestJSON.add("login", login);
         requestJSON.add("name", name);
@@ -126,6 +127,10 @@ public class BoxUser extends BoxCollaborator {
 
             if (params.getStatus() != null) {
                 requestJSON.add("status", params.getStatus().toJSONValue());
+            }
+
+            if(params.getSpaceAmount() == 0L) {
+                requestJSON.add("space_amount", defaultAppUserStorage);
             }
 
             requestJSON.add("language", params.getLanguage());
