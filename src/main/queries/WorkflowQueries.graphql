@@ -1,0 +1,8 @@
+query getAllTemplates {
+	templates (first: 3) {
+		items {
+			id
+			name
+		}
+	}
+}
