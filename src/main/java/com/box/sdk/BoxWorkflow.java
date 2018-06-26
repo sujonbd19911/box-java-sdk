@@ -1,6 +1,5 @@
 package com.box.sdk;
 
-import com.apollographql.apollo.*;
 /**
  *
  */
@@ -14,11 +13,6 @@ public class BoxWorkflow {
             new URLTemplate("https://publicapi-sandbox.ibmbrsandbox.com/");
 
     public void getAllTemplates() {
-        apolloClient.query(
-          getAllTemplates().builder()
-            .build()
-        ).enqueue(new ApolloCall.Callback<FeedQuery.Data>() {
-          }
-        });
+        HttpPost httpPost = new HttpPost("https://publicapi-sandbox.ibmbrsandbox.com/");
     }
 }
