@@ -5,6 +5,7 @@ import org.jose4j.json.internal.json_simple.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+
 /**
  *
  */
@@ -32,7 +33,7 @@ public class BoxWorkflow extends BoxResource{
             request.setBody(jsonObject.toString());
             BoxJSONResponse response = (BoxJSONResponse) request.send();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            System.out.println("Error: "+ e);
         }
     }
 }

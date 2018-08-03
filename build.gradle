@@ -24,6 +24,15 @@ sourceSets {
     }
 }
 
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.apollographql.apollo:apollo-gradle-plugin:0.4.1'
+  }
+}
+
 dependencies {
     compile 'com.eclipsesource.minimal-json:minimal-json:0.9.1'
     compile 'org.bitbucket.b_c:jose4j:0.4.4'
