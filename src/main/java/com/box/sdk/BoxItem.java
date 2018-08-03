@@ -2,12 +2,9 @@ package com.box.sdk;
 
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import com.box.sdk.internal.utils.Parsers;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
@@ -34,6 +31,11 @@ public abstract class BoxItem extends BoxResource {
      * Url template for operations with watermarks.
      */
     public static final URLTemplate WATERMARK_URL_TEMPLATE = new URLTemplate("/watermark");
+
+    /**
+     * Metadata URL Template.
+     */
+    public static final URLTemplate METADATA_URL_TEMPLATE = new URLTemplate("files/%s/metadata/%s/%s");
 
     /**
      * Constructs a BoxItem for an item with a given ID.
@@ -115,6 +117,40 @@ public abstract class BoxItem extends BoxResource {
     }
 
     /**
+     * Gets the file properties metadata.
+     *
+     * @return the metadata returned from the server.
+     */
+    public Metadata getMetadata() {
+        return this.getMetadata(Metadata.DEFAULT_METADATA_TYPE);
+    }
+
+    /**
+     * Gets the file metadata of specified template type.
+     *
+     * @param typeName the metadata template type name.
+     * @return the metadata returned from the server.
+     */
+    public Metadata getMetadata(String typeName) {
+        String scope = Metadata.scopeBasedOnType(typeName);
+        return this.getMetadata(typeName, scope);
+    }
+
+    /**
+     * Gets the file metadata of specified template type.
+     *
+     * @param typeName the metadata template type name.
+     * @param scope    the metadata scope (global or enterprise).
+     * @return the metadata returned from the server.
+     */
+    public Metadata getMetadata(String typeName, String scope) {
+        URL url = METADATA_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID(), scope, typeName);
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        return new Metadata(JsonObject.readFrom(response.getJSON()));
+    }
+
+    /**
      * Removes a watermark from the item.
      * If the item did not have a watermark applied to it, a 404 Not Found will be returned by API.
      * @param itemUrl url template for the item.
@@ -193,6 +229,7 @@ public abstract class BoxItem extends BoxResource {
      */
     public abstract BoxItem.Info setCollections(BoxCollection... collections);
 
+
     /**
      * Contains information about a BoxItem.
      */
@@ -202,6 +239,7 @@ public abstract class BoxItem extends BoxResource {
         private String name;
         private Date createdAt;
         private Date modifiedAt;
+        private JsonObject metadata;
         private String description;
         private long size;
         private List<BoxFolder.Info> pathCollection;
@@ -216,6 +254,7 @@ public abstract class BoxItem extends BoxResource {
         private List<String> tags;
         private BoxFolder.Info parent;
         private String itemStatus;
+        private Map<String, Map<String, Metadata>> metadataMap;
         private Set<BoxCollection.Info> collections;
 
         /**
@@ -471,6 +510,22 @@ public abstract class BoxItem extends BoxResource {
             this.addPendingChange("collections", jsonArray);
         }
 
+        /**
+         * Gets the metadata on this file associated with a specified scope and template.
+         * Makes an attempt to get metadata that was retrieved using getInfo(String ...) method. If no result is found
+         * then makes an API call to get metadata
+         * @param   templateName    the metadata template type name.
+         * @param   scope           the scope of the template (usually "global" or "enterprise").
+         * @return                  the metadata returned from the server.
+         */
+        public Metadata getMetadata(String templateName, String scope) {
+            try {
+                return this.metadataMap.get(scope).get(templateName);
+            } catch (NullPointerException e) {
+                return null;
+            }
+        }
+
         @Override
         protected void parseJSONMember(JsonObject.Member member) {
             super.parseJSONMember(member);
@@ -508,6 +563,9 @@ public abstract class BoxItem extends BoxResource {
                     this.modifiedBy = this.parseUserInfo(value.asObject());
                 } else if (memberName.equals("owned_by")) {
                     this.ownedBy = this.parseUserInfo(value.asObject());
+                } else if (memberName.equals("metadata")) {
+                    JsonObject jsonObject = value.asObject();
+                    this.metadataMap = Parsers.parseAndPopulateMetadataMap(jsonObject);
                 } else if (memberName.equals("shared_link")) {
                     if (this.sharedLink == null) {
                         this.setSharedLink(new BoxSharedLink(value.asObject()));

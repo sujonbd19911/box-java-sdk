@@ -35,6 +35,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.eclipsesource.json.JsonArray;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -48,6 +49,25 @@ import com.eclipsesource.json.JsonObject;
  * {@link BoxFile} related unit tests.
  */
 public class BoxFileTest {
+
+    @Test
+    @Category(IntegrationTest.class)
+    public void testApplyMetadata() {
+        BoxAPIConnection api = new BoxAPIConnection("njz06LoUwliRFcrZJV0jvbA8fT6PDjYl");
+        BoxFolder folder = new BoxFolder(api, "50167809963");
+        Metadata folderMetadata = folder.createMetadata(new Metadata().add("/foo", "bar"));
+    }
+
+    @Test
+    @Category(IntegrationTest.class)
+    public void testGetUnifiedMetadataTest() {
+        BoxAPIConnection api = new BoxAPIConnection("njz06LoUwliRFcrZJV0jvbA8fT6PDjYl");
+        BoxFolder root = BoxFolder.getRootFolder(api);
+        Metadata itemMetadata;
+        Iterable<BoxItem.Info> itemsInFolder = root.getChildren("metadata.global.properties");
+        BoxItem.Info itemInfo  = itemsInFolder.iterator().next();
+        itemMetadata = itemInfo.getMetadata("properties", "global");
+    }
 
     @ClassRule
     public static final WireMockClassRule WIRE_MOCK_CLASS_RULE = new WireMockClassRule(53621);
