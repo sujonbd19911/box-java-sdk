@@ -13,7 +13,7 @@ public class BoxWorkflowTest {
     @Test
     @Category(IntegrationTest.class)
     public void testGetAllTemplates() throws MalformedURLException {
-        BoxAPIConnection api = new BoxAPIConnection("uOMfo8Nd7pWHifKf7r1DYdm3gNisEXBQ");
+        BoxAPIConnection api = new BoxAPIConnection("6lf3gHNIqDvJ8Vxcuv4WmnLEwOUwxbyc");
         BoxWorkflow.getAllTemplates(api);
     }
 }
