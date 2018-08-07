@@ -10,21 +10,21 @@ import com.eclipsesource.json.JsonValue;
 import netscape.javascript.JSObject;
 
 /**
- *  The base class for BoxTemplates.
+ *  The base class for BoxWorkflowTemplates.
  */
-public class BoxTemplate extends BoxResource {
+public class BoxWorkflowTemplate extends BoxResource {
 
     /**
-     * Constructs a BoxTemplate with a given ID.
-     * @param api   the API connection to be used by the BoxTemplate.
-     * @param id    the ID of the BoxTemplate.
+     * Constructs a BoxWorkflowTemplate with a given ID.
+     * @param api   the API connection to be used by the BoxWorkflowTemplate.
+     * @param id    the ID of the BoxWorkflowTemplate.
      */
-    public BoxTemplate(BoxAPIConnection api, String id) { super(api, id); }
+    public BoxWorkflowTemplate(BoxAPIConnection api, String id) { super(api, id); }
 
     /**
-     * Contains information about a BoxTemplate.
+     * Contains information about a BoxWorkflowTemplate.
      */
-    public abstract class Info extends BoxResource.Info {
+    public class Info extends BoxResource.Info {
         private String name;
         private String version;
         private String referenceName;
@@ -165,6 +165,11 @@ public class BoxTemplate extends BoxResource {
         public void setLaunchMode(String launchMode) {
             this.launchMode = launchMode;
             this.addPendingChange("launchMode", launchMode);
+        }
+
+        @Override
+        public BoxResource getResource() {
+            return BoxWorkflowTemplate.this;
         }
 
         @Override

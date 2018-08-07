@@ -7,11 +7,8 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 
-import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
-
-import netscape.javascript.JSObject;
 
 /**
  *
@@ -28,7 +25,9 @@ public class BoxWorkflow extends BoxResource{
         super(api, id);
     }
 
-    public static void getAllTemplates(BoxAPIConnection api) {
+    public static BoxWorkflow.Info getAllTemplates(BoxAPIConnection api) {
+        BoxWorkflow createdWorkflow = null;
+        JsonObject responseJSON = null;
         try{
             URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
             BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
@@ -38,16 +37,19 @@ public class BoxWorkflow extends BoxResource{
 
             request.setBody(jsonObject.toString());
             BoxJSONResponse response = (BoxJSONResponse) request.send();
-            System.out.println("Response: " + response);
+            responseJSON = JsonObject.readFrom(response.getJSON());
+
+            createdWorkflow = new BoxWorkflow(api, responseJSON.get("id").asString());
         } catch (MalformedURLException e) {
             System.out.println("Error: "+ e);
         }
+        return createdWorkflow.new Info(responseJSON);
     }
 
     /**
      * Contains information about a BoxWorkflow.
      */
-    public abstract class Info extends BoxResource.Info {
+    public class Info extends BoxResource.Info {
         private String name;
         private Date created;
         private BoxUser.Info createdBy;
@@ -58,7 +60,7 @@ public class BoxWorkflow extends BoxResource{
         private BoxWorkflowTask[] tasks;
         private String state;
         private String nextMilestone;
-        private BoxTemplate template;
+        private BoxWorkflowTemplate template;
         private String timeZone;
         private boolean isFlagged;
         private boolean isStalled;
@@ -80,6 +82,161 @@ public class BoxWorkflow extends BoxResource{
          * @param jsonObject    the parsed JSON object.
          */
         Info(JsonObject jsonObject) { super(jsonObject); }
+
+        /**
+         * Get the name of the Box Workflow specified.
+         * @return  the name of the workflow.
+         */
+        public String getName() { return this.name; }
+
+        /**
+         * Get the date and time the workflow was created.
+         * @return  the Date and time of the creation of the workflow.
+         */
+        public Date getCreated() { return this.created; }
+
+        /**
+         * Get the BoxUser that created the workflow.
+         * @return  BoxUser that created the workflow.
+         */
+        public BoxUser.Info getCreatedBy() { return this.createdBy; }
+
+        /**
+         * The date and time the workflow was last modified.
+         * @return  Date and time the workflow was modified.
+         */
+        public Date getModified() { return this.modified; }
+
+        /**
+         * The BoxUser that modified the workflow.
+         * @return  BoxUser that modified the workflow.
+         */
+        public BoxUser.Info getModifiedBy() { return this.modifiedBy; }
+
+        /**
+         * The date and time the workflow was completed.
+         * @return  Date and time of workflow completion.
+         */
+        public Date getCompleted() { return this.completed; }
+
+        /**
+         * The BoxUser that completed the workflow.
+         * @return  BoxUser that completed workflow.
+         */
+        public BoxUser.Info getCompletedBy() { return this.completedBy; }
+
+        /**
+         * The tasks associated with the workflow.
+         * @return  An array of BoxWorkflowTasks.
+         */
+        public BoxWorkflowTask[] getTasks() {
+            return this.tasks;
+        }
+
+        /**
+         * Get the state of the workflow.
+         * @return  Return either 'Working', 'CancelPending', 'Pending', 'Complete', 'Canceled', or 'Failed'.
+         */
+        public String getState() { return this.state; }
+
+        /**
+         * Workflow next milestone.
+         * @return  The next milstone for the workflow.
+         */
+        public String getNextMilestone() { return this.nextMilestone; }
+
+        /**
+         * The template for the given workflow.
+         * @return  The template for the given workflow.
+         */
+        public BoxWorkflowTemplate getTemplate() { return this.template; }
+
+        /**
+         * The timezone name.
+         * @return The timezone name for the workflow.
+         */
+        public String getTimeZone() { return this.timeZone; }
+
+        /**
+         * Indicates if the workflow is flagged.
+         * @return  Whether the workflow is flagged.
+         */
+        public boolean getIsFlagged() { return this.isFlagged; }
+
+        /**
+         * Indicates if the workflow is stalled.
+         * @return  Whether the workflow is stalled.
+         */
+        public boolean getIsStalled() { return this.isStalled; }
+
+        /**
+         * Indicates if the workflow is overdue.
+         * @return  Whether the workflow is overdue.
+         */
+        public boolean getIsOverDue() { return this.isOverdue; }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        /**
+         * Sets the state of the workflow.
+         * @param state The state of the workflow.
+         */
+        public void setState(String state) {
+            this.state = state;
+        }
+
+        /**
+         * Sets the next milestone for the workflow.
+         * @param nextMilestone The next milestone for the workflow.
+         */
+        public void setNextMilestone(String nextMilestone) {
+            this.nextMilestone = nextMilestone;
+        }
+
+        /**
+         * Sets the template for the workflow.
+         * @param template  The template for the workflow.
+         */
+        public void setTemplate(BoxWorkflowTemplate template) {
+            this.template = template;
+        }
+
+        /**
+         * Sets the time zone for the workflow.
+         * @param timeZone  The time zone of the workflow.
+         */
+        public void setTimeZone(String timeZone) {
+            this.timeZone = timeZone;
+        }
+
+        /**
+         * Indicates if the workflow is flagged.
+         * @param isFlagged Flag to indicate if workflow is flagged.
+         */
+        public void setIsFlagged(boolean isFlagged) {
+            this.isFlagged = isFlagged;
+        }
+
+        /**
+         * Indicates if the workflow is installed.
+         * @param isStalled Flag to indicate if workflow is installed.
+         */
+        public void setIsStalled(boolean isStalled) {
+            this.isStalled = isStalled;
+        }
+
+        /**
+         * Indicates if the workflow is overdue.
+         * @param isOverdue Flag to indicate if workflow is overdue.
+         */
+        public void setIsOverdue(boolean isOverdue) {
+            this.isOverdue = isOverdue;
+        }
+
+        @Override
+        public BoxResource getResource() { return BoxWorkflow.this; }
 
         @Override
         protected void parseJSONMember(JsonObject.Member member) {
@@ -123,6 +280,20 @@ public class BoxWorkflow extends BoxResource{
                     } else {
                         this.completedBy.update(userJSON);
                     }
+                } else if (name.equals("state")) {
+                    this.state = value.asString();
+                } else if (name.equals("nextMilestone")) {
+                    this.nextMilestone = value.asString();
+                } else if (name.equals("template")) {
+
+                } else if (name.equals("timeZone")) {
+                    this.timeZone = value.asString();
+                } else if (name.equals("isFlagged")) {
+                    this.isFlagged = value.asBoolean();
+                } else if (name.equals("isStalled")) {
+                    this.isStalled = value.asBoolean();
+                } else if (name.equals("isOverdue")) {
+                    this.isOverdue = value.asBoolean();
                 }
             } catch(ParseException e) {
                 System.out.println("Parsing failed with error: " + e.getMessage());

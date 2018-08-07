@@ -19,7 +19,7 @@ public class BoxWorkflowTask extends  BoxResource{
     /**
      * Contains information about a BoxWorkflowTask.
      */
-    public abstract class Info extends BoxResource.Info {
+    public class Info extends BoxResource.Info {
         private String name;
         private String type;
         private String created;
@@ -78,6 +78,11 @@ public class BoxWorkflowTask extends  BoxResource{
         public void setState(String state) {
             this.state = state;
             this.addPendingChange("state", state);
+        }
+
+        @Override
+        public BoxResource getResource() {
+            return BoxWorkflowTask.this;
         }
 
         @Override
