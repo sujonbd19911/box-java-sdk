@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
@@ -25,25 +26,33 @@ public class BoxWorkflow extends BoxResource{
         super(api, id);
     }
 
-    public static BoxWorkflow.Info getAllTemplates(BoxAPIConnection api) {
+    private URL url;
+    private BoxAPIConnection api;
+
+    public static Iterable<BoxWorkflow.Info> getAllTemplates(final BoxAPIConnection api) throws MalformedURLException {
         BoxWorkflow createdWorkflow = null;
         JsonObject responseJSON = null;
-        try{
-            URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
-            BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("query", "{templates (first:3) {items {id name}}}");
+        final URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
+        BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
 
-            request.setBody(jsonObject.toString());
-            BoxJSONResponse response = (BoxJSONResponse) request.send();
-            responseJSON = JsonObject.readFrom(response.getJSON());
+        final JSONObject jsonObject = new JSONObject();
+        jsonObject.put("query", "{templates (first:3) {items {id name}}}");
 
-            createdWorkflow = new BoxWorkflow(api, responseJSON.get("id").asString());
-        } catch (MalformedURLException e) {
-            System.out.println("Error: "+ e);
-        }
-        return createdWorkflow.new Info(responseJSON);
+        //request.setBody(jsonObject.toString());
+        return new Iterable<BoxWorkflow.Info>() {
+            public Iterator<BoxWorkflow.Info> iterator() {
+                return new BoxWorkflowIterator(api, url, jsonObject);
+            }
+        };
+//            BoxJSONResponse response = (BoxJSONResponse) request.send();
+//            responseJSON = JsonObject.readFrom(response.getJSON());
+//
+//            createdWorkflow = new BoxWorkflow(api, responseJSON.get("id").asString());
+
+
+
+        //return createdWorkflow.new Info(responseJSON);
     }
 
     /**
