@@ -34,7 +34,7 @@ public class BoxWorkflow extends BoxResource{
         JsonObject responseJSON = null;
 
         final URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
-        BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
+//        BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
 
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("query", "{templates (first:3) {items {id name}}}");

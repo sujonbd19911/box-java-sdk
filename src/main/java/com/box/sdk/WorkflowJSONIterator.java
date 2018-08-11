@@ -59,15 +59,16 @@ public class WorkflowJSONIterator implements Iterator<JsonObject> {
         URL url = this.url;
         BoxAPIRequest request = new BoxAPIRequest(this.api, url, "POST");
         request.setBody(this.body.toString());
+        request.addHeader("Content-Type", "application/json");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         String json = response.getJSON();
 
         JsonObject jsonObject = JsonObject.readFrom(json);
-        String totalCountString = jsonObject.get("count").toString();
-        this.totalCount = Double.valueOf(totalCountString).longValue();
-        String offsetString = jsonObject.get("offset").toString();
+//        String totalCountString = jsonObject.get("count").toString();
+//        this.totalCount = Double.valueOf(totalCountString).longValue();
+//        String offsetString = jsonObject.get("offset").toString();
 
-        JsonArray jsonArray = jsonObject.get("items").asArray();
+        JsonArray jsonArray = jsonObject.get("data").asObject().get("templates").asObject().get("items").asArray();
         this.currentPage = jsonArray.iterator();
     }
 

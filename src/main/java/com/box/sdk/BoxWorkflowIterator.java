@@ -13,13 +13,11 @@ public class BoxWorkflowIterator implements Iterator<BoxWorkflow.Info> {
 
     private static final long LIMIT = 100;
     private final BoxAPIConnection api;
-    private final JSONObject body;
-    private final JSONIterator jsonIterator;
+    private final WorkflowJSONIterator jsonIterator;
 
     BoxWorkflowIterator(BoxAPIConnection api, URL url, JSONObject body) {
         this.api = api;
-        this.jsonIterator = new JSONIterator(api, url, LIMIT);
-        this.body = body;
+        this.jsonIterator = new WorkflowJSONIterator(api, url, LIMIT, body);
     }
 
     @Override
