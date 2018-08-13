@@ -9,6 +9,7 @@ import java.util.Iterator;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
+import com.box.sdk.internal.utils.GraphQLFieldsParser;
 
 import netscape.javascript.JSObject;
 import org.jose4j.json.internal.json_simple.JSONObject;
@@ -34,9 +35,12 @@ public class BoxWorkflowTemplate extends BoxResource {
         JsonObject responseJSON = null;
         String queryString;
 
+        String optinalFieldString = GraphQLFieldsParser.parseFields(fields);
+
         final URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
         queryString = String.format("{templates (first:%s) {count pageInfo { hasNextPage hasPreviousPage, " +
-                        "startCursor, endCursor } items {id name description state published %s }}}", limit);
+                        "startCursor, endCursor } items {id name description state published%s }}}",
+                            limit, optinalFieldString);
 
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("query", queryString);
@@ -230,7 +234,7 @@ public class BoxWorkflowTemplate extends BoxResource {
                 } else if (name.equals("referenceName")) {
                     this.referenceName = value.asString();
                 } else if (name.equals("created")) {
-                    this.created = BoxDateFormat.parse(value.asString());
+                    this.created = BoxDateFormat.parseZuluFormat(value.asString());
                 } else if (name.equals("createdBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.createdBy == null) {
@@ -241,7 +245,7 @@ public class BoxWorkflowTemplate extends BoxResource {
                         this.createdBy.update(userJSON);
                     }
                 } else if (name.equals("modified")) {
-                    this.modified = BoxDateFormat.parse(value.asString());
+                    this.modified = BoxDateFormat.parseZuluFormat(value.asString());
                 } else if (name.equals("modifiedBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.modifiedBy == null) {
@@ -253,7 +257,7 @@ public class BoxWorkflowTemplate extends BoxResource {
                     }
                 } else if (name.equals("published")) {
                     this.published = BoxDateFormat.parseZuluFormat(value.asString());
-                } else if (name.equals("createdBy")) {
+                } else if (name.equals("publishedBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.publishedBy == null) {
                         String userID = userJSON.get("id").asString();

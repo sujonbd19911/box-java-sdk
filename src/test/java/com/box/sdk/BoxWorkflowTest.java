@@ -20,10 +20,10 @@ public class BoxWorkflowTest {
     @Test
     @Category(IntegrationTest.class)
     public void testGetAllTemplates() throws MalformedURLException {
-        BoxAPIConnection api = new BoxAPIConnection("AoVaEkFgFhfX1xvsghIiaBDscGdiVoF9");
+        BoxAPIConnection api = new BoxAPIConnection("VG4iWTbQSIEUXEDgBdUkh01oBvEEB2Rn");
 
         try {
-            Iterable<BoxWorkflowTemplate.Info> iterable = BoxWorkflowTemplate.getAllTemplates(api, 3);
+            Iterable<BoxWorkflowTemplate.Info> iterable = BoxWorkflowTemplate.getAllTemplates(api, 3, "referenceName", "version");
             Iterator<BoxWorkflowTemplate.Info> iterator = iterable.iterator();
             for (int i = 0; i < 5; i++){
                 BoxWorkflowTemplate.Info workflowTemplateInfo = iterator.next();

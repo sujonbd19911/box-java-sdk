@@ -5,11 +5,11 @@ package com.box.sdk.internal.utils;
  */
 public class GraphQLFieldsParser {
 
-    public String fieldsParser(String... fields) {
+    public static String parseFields(String... fields) {
         StringBuilder builder = new StringBuilder();
 
         for (String field : fields) {
-            builder.append(field);
+            builder.append(" " + field);
         }
 
         return builder.toString();

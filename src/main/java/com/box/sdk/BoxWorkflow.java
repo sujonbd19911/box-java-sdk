@@ -52,6 +52,7 @@ public class BoxWorkflow extends BoxResource{
     public class Info extends BoxResource.Info {
         private String name;
         private Date created;
+        private String description;
         private BoxUser.Info createdBy;
         private Date modified;
         private BoxUser.Info modifiedBy;
@@ -88,6 +89,12 @@ public class BoxWorkflow extends BoxResource{
          * @return  the name of the workflow.
          */
         public String getName() { return this.name; }
+
+        /**
+         * Get the description of the workflow.
+         * @return  the description of the workflow.
+         */
+        public String getDescription() { return this.description; }
 
         /**
          * Get the date and time the workflow was created.
@@ -175,9 +182,19 @@ public class BoxWorkflow extends BoxResource{
          */
         public boolean getIsOverDue() { return this.isOverdue; }
 
+        /**
+         * Sets the name for the workflow.
+         * @param name  The workflow name.
+         */
         public void setName(String name) {
             this.name = name;
         }
+
+        /**
+         * Sets the description for the workflow.
+         * @param description   The workflow description.
+         */
+        public void setDescription(String description) { this.description = description; }
 
         /**
          * Sets the state of the workflow.
@@ -247,8 +264,10 @@ public class BoxWorkflow extends BoxResource{
                 String name = member.getName();
                 if (name.equals("name")) {
                     this.name = value.asString();
-                } else if (name.equals("created")) {
-                    this.created = BoxDateFormat.parse(value.asString());
+                } else if (name.equals("description")) {
+                    this.description = value.asString();
+                }else if (name.equals("created")) {
+                    this.created = BoxDateFormat.parseZuluFormat(value.asString());
                 } else if (name.equals("createdBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.createdBy == null) {
@@ -259,7 +278,7 @@ public class BoxWorkflow extends BoxResource{
                         this.createdBy.update(userJSON);
                     }
                 } else if (name.equals("modified")) {
-                    this.modified = BoxDateFormat.parse(value.asString());
+                    this.modified = BoxDateFormat.parseZuluFormat(value.asString());
                 } else if (name.equals("modifiedBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.modifiedBy == null) {
@@ -270,7 +289,7 @@ public class BoxWorkflow extends BoxResource{
                         this.modifiedBy.update(userJSON);
                     }
                 } else if (name.equals("completed")) {
-                    this.completed = BoxDateFormat.parse(value.asString());
+                    this.completed = BoxDateFormat.parseZuluFormat(value.asString());
                 } else if (name.equals("completedBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.completedBy == null) {
