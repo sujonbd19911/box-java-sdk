@@ -34,25 +34,16 @@ public class BoxWorkflow extends BoxResource{
         JsonObject responseJSON = null;
 
         final URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
-//        BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
 
         final JSONObject jsonObject = new JSONObject();
-        jsonObject.put("query", "{templates (first:3) {items {id name}}}");
+        jsonObject.put("query", "{templates (first:3) {count pageInfo { hasNextPage hasPreviousPage, " +
+                "startCursor, endCursor } items {id name description state published }}}");
 
-        //request.setBody(jsonObject.toString());
         return new Iterable<BoxWorkflow.Info>() {
             public Iterator<BoxWorkflow.Info> iterator() {
                 return new BoxWorkflowIterator(api, url, jsonObject);
             }
         };
-//            BoxJSONResponse response = (BoxJSONResponse) request.send();
-//            responseJSON = JsonObject.readFrom(response.getJSON());
-//
-//            createdWorkflow = new BoxWorkflow(api, responseJSON.get("id").asString());
-
-
-
-        //return createdWorkflow.new Info(responseJSON);
     }
 
     /**

@@ -1,13 +1,17 @@
 package com.box.sdk;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import netscape.javascript.JSObject;
+import org.jose4j.json.internal.json_simple.JSONObject;
 
 /**
  *  The base class for BoxWorkflowTemplates.
@@ -21,6 +25,29 @@ public class BoxWorkflowTemplate extends BoxResource {
      */
     public BoxWorkflowTemplate(BoxAPIConnection api, String id) { super(api, id); }
 
+    private URL url;
+    private BoxAPIConnection api;
+
+    public static Iterable<BoxWorkflowTemplate.Info> getAllTemplates(final BoxAPIConnection api, int limit,
+                                                                     String... fields) throws MalformedURLException {
+        BoxWorkflow createdWorkflow = null;
+        JsonObject responseJSON = null;
+        String queryString;
+
+        final URL url = new URL("https://publicapi-sandbox.ibmbrsandbox.com");
+        queryString = String.format("{templates (first:%s) {count pageInfo { hasNextPage hasPreviousPage, " +
+                        "startCursor, endCursor } items {id name description state published %s }}}", limit);
+
+        final JSONObject jsonObject = new JSONObject();
+        jsonObject.put("query", queryString);
+
+        return new Iterable<BoxWorkflowTemplate.Info>() {
+            public Iterator<BoxWorkflowTemplate.Info> iterator() {
+                return new BoxWorkflowTemplateIterator(api, url, jsonObject);
+            }
+        };
+    }
+
     /**
      * Contains information about a BoxWorkflowTemplate.
      */
@@ -28,7 +55,7 @@ public class BoxWorkflowTemplate extends BoxResource {
         private String name;
         private String version;
         private String referenceName;
-        private JSObject description;
+        private String description;
         private Date created;
         private BoxUser.Info createdBy;
         private Date modified;
@@ -85,6 +112,12 @@ public class BoxWorkflowTemplate extends BoxResource {
          * @return  the BoxUser info object.
          */
         public BoxUser.Info getCreatedBy() { return this.createdBy; }
+
+        /**
+         * Gets the description for the workflow template.
+         * @return  the description for the template.
+         */
+        public String getDescription() { return this.description; }
 
         /**
          * Gets the modified date time for the template.
@@ -167,6 +200,15 @@ public class BoxWorkflowTemplate extends BoxResource {
             this.addPendingChange("launchMode", launchMode);
         }
 
+        /**
+         * The description of the template.
+         * @param description   The description to be set on the template.
+         */
+        public void setDescription(String description) {
+            this.description = description;
+            this.addPendingChange("description", description);
+        }
+
         @Override
         public BoxResource getResource() {
             return BoxWorkflowTemplate.this;
@@ -181,6 +223,8 @@ public class BoxWorkflowTemplate extends BoxResource {
                 String name = member.getName();
                 if(name.equals("name")) {
                     this.name = value.asString();
+                } else if (name.equals("description")) {
+                    this.description = value.asString();
                 } else if (name.equals("version")) {
                     this.version = value.asString();
                 } else if (name.equals("referenceName")) {
@@ -208,7 +252,7 @@ public class BoxWorkflowTemplate extends BoxResource {
                         this.modifiedBy.update(userJSON);
                     }
                 } else if (name.equals("published")) {
-                    this.published = BoxDateFormat.parse(value.asString());
+                    this.published = BoxDateFormat.parseZuluFormat(value.asString());
                 } else if (name.equals("createdBy")) {
                     JsonObject userJSON = value.asObject();
                     if (this.publishedBy == null) {

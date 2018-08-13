@@ -25,6 +25,10 @@ public class WorkflowJSONIterator implements Iterator<JsonObject> {
     private long offset;
     private long totalCount;
     private JSONObject body;
+    private boolean hasNextPage;
+    private boolean hasPreviousPage;
+    private String startCursor;
+    private String endCursor;
     private boolean hasMorePages;
     private Iterator<JsonValue> currentPage;
     private JsonObject nextJsonObject;
@@ -46,7 +50,17 @@ public class WorkflowJSONIterator implements Iterator<JsonObject> {
     }
 
     public JsonObject next() {
-        return null;
+        if (this.nextJsonObject == null) {
+            this.nextJsonObject = this.loadNextJsonObject();
+        }
+
+        if (this.nextJsonObject == null) {
+            throw new NoSuchElementException();
+        }
+
+        JsonObject next = this.nextJsonObject;
+        this.nextJsonObject = null;
+        return next;
     }
 
     public void remove() { throw new UnsupportedOperationException(); }
@@ -64,9 +78,16 @@ public class WorkflowJSONIterator implements Iterator<JsonObject> {
         String json = response.getJSON();
 
         JsonObject jsonObject = JsonObject.readFrom(json);
-//        String totalCountString = jsonObject.get("count").toString();
-//        this.totalCount = Double.valueOf(totalCountString).longValue();
-//        String offsetString = jsonObject.get("offset").toString();
+        String totalCountString = jsonObject.get("data").asObject().get("templates").asObject().get("count").toString();
+        this.totalCount = Double.valueOf(totalCountString).longValue();
+        this.hasPreviousPage = jsonObject.get("data").asObject().get("templates").asObject().get("pageInfo").asObject()
+                .get("hasPreviousPage").asBoolean();
+        this.hasNextPage = jsonObject.get("data").asObject().get("templates").asObject().get("pageInfo").asObject()
+                .get("hasNextPage").asBoolean();
+        this.startCursor = jsonObject.get("data").asObject().get("templates").asObject().get("pageInfo").asObject()
+                .get("startCursor").asString();
+        this.endCursor = jsonObject.get("data").asObject().get("templates").asObject().get("pageInfo").asObject()
+                .get("endCursor").asString();
 
         JsonArray jsonArray = jsonObject.get("data").asObject().get("templates").asObject().get("items").asArray();
         this.currentPage = jsonArray.iterator();
@@ -77,7 +98,7 @@ public class WorkflowJSONIterator implements Iterator<JsonObject> {
             this.loadNextPage();
         }
 
-        while (this.currentPage.hasNext() || this.hasMorePages) {
+        while (this.currentPage.hasNext() || this.hasNextPage) {
             while (this.currentPage.hasNext()) {
                 JsonObject jsonObject = this.currentPage.next().asObject();
                 if (this.filter == null || this.filter.shouldInclude(jsonObject)) {
@@ -85,7 +106,7 @@ public class WorkflowJSONIterator implements Iterator<JsonObject> {
                 }
             }
 
-            if (this.hasMorePages) {
+            if (this.hasNextPage) {
                 this.loadNextPage();
             }
         }

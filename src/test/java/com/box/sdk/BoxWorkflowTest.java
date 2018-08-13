@@ -2,8 +2,14 @@ package com.box.sdk;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -14,14 +20,14 @@ public class BoxWorkflowTest {
     @Test
     @Category(IntegrationTest.class)
     public void testGetAllTemplates() throws MalformedURLException {
-        BoxAPIConnection api = new BoxAPIConnection("x01q5H8mgQUQesbsNRuNa6pxDSn2i3J8");
-        BoxWorkflow.getAllTemplates(api);
+        BoxAPIConnection api = new BoxAPIConnection("AoVaEkFgFhfX1xvsghIiaBDscGdiVoF9");
 
         try {
-            Iterable<BoxWorkflow.Info> iterable = BoxWorkflow.getAllTemplates(api);
-            Iterator<BoxWorkflow.Info> iterator = iterable.iterator();
-            if (iterator.hasNext()) {
-                BoxWorkflow.Info workflowInfo = iterator.next();
+            Iterable<BoxWorkflowTemplate.Info> iterable = BoxWorkflowTemplate.getAllTemplates(api, 3);
+            Iterator<BoxWorkflowTemplate.Info> iterator = iterable.iterator();
+            for (int i = 0; i < 5; i++){
+                BoxWorkflowTemplate.Info workflowTemplateInfo = iterator.next();
+                System.out.println("Workflow Template Info: " + workflowTemplateInfo);
             }
         } finally {
             System.out.println("All done.");

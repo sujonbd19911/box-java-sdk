@@ -31,6 +31,14 @@ public final class BoxDateFormat {
         return THREAD_LOCAL_DATE_FORMAT.get().parse(fixIso8601TimeZone(dateString));
     }
 
+    public static Date parseZuluFormat(String dateString) throws ParseException {
+        DateFormat parsedTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+        Date date = parsedTime.parse(dateString);
+
+        return date;
+    }
+
+
     /**
      * Formats a date as a string that can be sent to the Box API.
      * @param  date the date to format.
