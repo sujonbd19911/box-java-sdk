@@ -153,7 +153,7 @@ public class MetadataTest {
         multiSelectField.setKey(fieldKey);
         multiSelectField.setType("multiSelect");
         multiSelectField.setDisplayName("MultiSelect Field");
-        multiSelectField.setOptions(fieldOptions);
+        //multiSelectField.setOptions(fieldOptions);
         fields.add(multiSelectField);
 
         MetadataTemplate template = MetadataTemplate.createMetadataTemplate(api, "enterprise",
@@ -226,7 +226,7 @@ public class MetadataTest {
         newField.setKey("otherMultiSelect");
         newField.setDisplayName("Another MultiSelect");
         newField.setType("multiSelect");
-        newField.setOptions(opts);
+        //newField.setOptions(opts);
         addField.setOp(MetadataTemplate.Operation.addField);
         addField.setData(newField);
         updates.add(addField);
