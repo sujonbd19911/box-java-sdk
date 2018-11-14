@@ -325,21 +325,57 @@ public class MetadataTemplateTest {
     }
 
     @Test
-    @Category(IntegrationTest.class)
-    public void testGetIDForTemplate() {
-        BoxAPIConnection api = new BoxAPIConnection("yc1gfTWJlcDFNoYvNIDDJUswnrkQ9fKN");
-        MetadataTemplate accountMetadataTemplate = MetadataTemplate.getMetadataTemplate(api, "account");
-        List<MetadataTemplate.Field> templateFields = accountMetadataTemplate.getFields();
+    @Category(UnitTest.class)
+    public void testGetOptionsReturnsListOfStrings() throws IOException {
+        String result = "";
+        final String templateID = "f7a9891f";
+        final String metadataTemplateURL = "/metadata_templates/" + templateID;
+        final ArrayList<String> list = new ArrayList<String>() { {
+                add("Beauty");
+                add("Shoes");
+            } };
 
-        for (MetadataTemplate.Field field : templateFields) {
-            System.out.println("Found field display name: " + field.getDisplayName() + " and key: " + field.getKey()
-                + " and id: " + field.getID());
+        result = TestConfig.getFixture("BoxMetadataTemplate/GetMetadataTemplateOptionInfo200");
 
-            if (field.getKey().equalsIgnoreCase("test")) {
+        WIRE_MOCK_CLASS_RULE.stubFor(WireMock.get(WireMock.urlPathEqualTo(metadataTemplateURL))
+                .willReturn(WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(result)));
+
+        MetadataTemplate template = MetadataTemplate.getMetadataTemplateByID(this.api, templateID);
+        List<MetadataTemplate.Field> fields = template.getFields();
+        for (MetadataTemplate.Field field : fields) {
+            if (field.getKey().equals("department")) {
+                Assert.assertEquals(list, field.getOptions());
+            }
+        }
+    }
+
+    @Test
+    @Category(UnitTest.class)
+    public void testGetOptionsReturnsListOfOptionsObject() throws IOException {
+        String result = "";
+        final String templateID = "f7a9891f";
+        final String metadataTemplateURL = "/metadata_templates/" + templateID;
+
+        result = TestConfig.getFixture("BoxMetadataTemplate/GetMetadataTemplateOptionInfo200");
+
+        WIRE_MOCK_CLASS_RULE.stubFor(WireMock.get(WireMock.urlPathEqualTo(metadataTemplateURL))
+                .willReturn(WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(result)));
+
+        MetadataTemplate template = MetadataTemplate.getMetadataTemplateByID(this.api, templateID);
+        List<MetadataTemplate.Field> fields = template.getFields();
+        for (MetadataTemplate.Field field : fields) {
+            if (field.getKey().equals("department")) {
                 List<MetadataTemplate.Option> options = field.getOptionsObject();
-                for (MetadataTemplate.Option option : options) {
-                    System.out.println("Found field option: " + option);
-                }
+                MetadataTemplate.Option firstOption = options.get(0);
+                MetadataTemplate.Option secondOption = options.get(1);
+                Assert.assertEquals("Beauty", firstOption.getKey());
+                Assert.assertEquals("f7a9895f", firstOption.getID());
+                Assert.assertEquals("Shoes", secondOption.getKey());
+                Assert.assertEquals("f7a9896f", secondOption.getID());
             }
         }
     }

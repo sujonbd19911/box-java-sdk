@@ -683,13 +683,17 @@ public class MetadataTemplate extends BoxJSONObject {
          * @return list of possible options for enum type of the field.
          */
         public List<String> getOptions() {
-            List<String> optionsList = null;
+            List<String> optionsList = new ArrayList<String>();
             for (Option option : this.optionsObject) {
-                optionsList.add(options.toString());
+                optionsList.add(option.getKey());
             }
             return optionsList;
         }
 
+        /**
+         * Gets list of possible options for options type of the field.
+         * @return list of possible options for option type of the field.
+         */
         public List<Option> getOptionsObject() {
             return this.optionsObject;
         }
@@ -721,17 +725,27 @@ public class MetadataTemplate extends BoxJSONObject {
                 this.description = value.asString();
             } else if (memberName.equals("options")) {
                 this.optionsObject = new ArrayList<Option>();
-                 for (JsonValue option: value.asArray()) {
-                     this.optionsObject.add(new Option(option.asObject()));
-                 }
+                for (JsonValue option: value.asArray()) {
+                    this.optionsObject.add(new Option(option.asObject()));
+                }
             } else if (memberName.equals("id")) {
                 this.id = value.asString();
             }
         }
     }
 
+    /**
+     * Class contains information about the metadata template option.
+     */
     public static class Option extends BoxJSONObject {
+        /**
+         * @see #getID()
+         */
         private String id;
+
+        /**
+         * @see #getKey()
+         */
         private String key;
 
         /**
@@ -742,16 +756,16 @@ public class MetadataTemplate extends BoxJSONObject {
         }
 
         /**
-         * Constructs a metadate template field from a JSON string.
-         * @param json the json encoded metadate template field.
+         * Constructs a metadate template option from a JSON string.
+         * @param json the json encoded metadata template option.
          */
         public Option(String json) {
             super(json);
         }
 
         /**
-         * Constructs a metadate template field from a JSON object.
-         * @param jsonObject the json encoded metadate template field.
+         * Constructs a metadate template option from a JSON object.
+         * @param jsonObject the json encoded metadate template option.
          */
         Option(JsonObject jsonObject) {
             super(jsonObject);
