@@ -68,7 +68,7 @@ public class MetadataTemplateTest {
         List<String> options = new ArrayList<String>();
         options.add("FY16");
         options.add("FY17");
-        //fyField.setOptions(options);
+        fyField.setOptions(options);
 
         List<MetadataTemplate.Field> fields = new ArrayList<MetadataTemplate.Field>();
         fields.add(ctField);
@@ -111,7 +111,7 @@ public class MetadataTemplateTest {
         List<String> options = new ArrayList<String>();
         options.add("Beauty");
         options.add("Shoes");
-        //deptField.setOptions(options);
+        deptField.setOptions(options);
         departmentFieldOp.setData(deptField);
 
         fieldOperations.add(departmentFieldOp);
